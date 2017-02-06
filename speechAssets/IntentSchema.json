@@ -1,0 +1,26 @@
+{
+  "intents": [
+    {
+      "intent": "GetFirstEventIntent",
+      "slots": [
+        {
+          "name": "product",
+          "type": "AMAZON.LITERAL"
+        }
+      ]
+    },
+    {
+      "intent": "GetNextEventIntent"
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    },
+    {
+      "intent": "AMAZON.CancelIntent"
+    }
+  ]
+}
+
