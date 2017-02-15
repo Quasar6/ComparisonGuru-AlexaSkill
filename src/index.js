@@ -128,7 +128,7 @@ function getWelcomeResponse(response) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var cardTitle = "Price Comparison Guru";
     var repromptText = "<p>With Comparison Guru, you can compare product prices across major online shopping stores in Canada.</p> <p>Now, what product you want to check?</p>";
-    var speechText = "<p>Welcome to Comparison Guru.</p> <p>What product you want to check?</p>";
+    var speechText = "<p>Welcome to Comparison Guru.</p> <p>What product do you want to check?</p>";
     var cardOutput = "Comparison Guru. Name the product that you want to price check.";
     // If the user either does not reply to the welcome message or says something that is not
     // understood, they will be prompted again with this text.

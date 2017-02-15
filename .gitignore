@@ -1,0 +1,7 @@
+/src/node_modules/*
+/test/node_modules/*
+/src/*.zip
+*.zip
+.DS_store
+*.DS_store
+*.log

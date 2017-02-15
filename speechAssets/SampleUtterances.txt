@@ -1,7 +1,10 @@
 GetFirstEventIntent get {price of|product}
+GetFirstEventIntent check the {price of|product}
 GetFirstEventIntent give me the {price of|product}
 GetFirstEventIntent get cheapest {price of|product}
 GetFirstEventIntent how much is the {price of|product}
+GetFirstEventIntent what is the {price of|product}
+GetFirstEventIntent what's' the {price of|product}
 GetFirstEventIntent {price of|product}
 GetFirstEventIntent {phone|product}
 
