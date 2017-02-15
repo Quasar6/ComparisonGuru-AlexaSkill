@@ -2,6 +2,6 @@
 /test/node_modules/*
 /src/*.zip
 *.zip
-.DS_store
-*.DS_store
+.DS_Store
+*.DS_Store
 *.log
