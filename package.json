@@ -1,0 +1,18 @@
+{
+  "name": "comparison_guru_alexa_skill",
+  "version": "1.0.0",
+  "description": "Comparsion Guru Alexa Skill service",
+  "main": "/src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "patient"
+  ],
+  "dependencies": {
+    "alexa-sdk": "latest",
+    "https": "latest"
+  },
+  "author": "Team Quasar - Shelalaine Chan",
+  "license": "ISC"
+}

@@ -34,7 +34,7 @@ var AlexaSkill = require('./AlexaSkill');
 /**
  * URL prefix to download history content from Quasar's backend
  */
-var urlPrefix = 'https://cguru-quasar6.rhcloud.com/cheapest/bestbuy/';
+var urlPrefix = 'https://cguru-quasar6.rhcloud.com/cheapest/';
 
 /**
  * Variable defining number of events to be read at one time
@@ -240,7 +240,7 @@ function handleNextEventRequest(intent, session, response) {
 }
 
 function fetchDataFromQuasar(name, eventCallback) {
-    var url = urlPrefix + name;
+    var url = urlPrefix + name + "/undefined_category";
 
     https.get(url, function(res) {
         var body = '';
@@ -260,9 +260,10 @@ function fetchDataFromQuasar(name, eventCallback) {
 
 function parseJson(inputText) {
     var text = "";
-    var total = inputText.substring(inputText.indexOf('"total\\": ')+10, inputText.indexOf(',\\n  \\"totalPages\\":'));
-    if (Number(total) > 0) {
-        text = inputText.substring(inputText.indexOf('"salePrice\\": ')+14, inputText.indexOf(',\\n      \\"manufacturer\\":'));
+    // var total = inputText.substring(inputText.indexOf('"total\\": ')+10, inputText.indexOf(',\\n  \\"totalPages\\":'));
+    // if (Number(total) > 0) 
+    {
+        text = inputText.substring(inputText.indexOf('price\":\"')+8, inputText.indexOf('\",\"store\"'));
     }
     return text;
 }
