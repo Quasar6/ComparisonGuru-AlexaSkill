@@ -159,32 +159,29 @@ function handleFirstEventRequest(intent, session, response) {
     
     var daySlot = intent.slots.product;
     var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.";
-    var monthNames = ["January", "February", "March", "April", "May", "June",
-                      "July", "August", "September", "October", "November", "December"
-    ];
+
     var sessionAttributes = {};
     // Read the first 3 events, then set the count to 3
-    sessionAttributes.index = paginationSize;
-    var date = "";
-
-    date = new Date();
+    sessionAttributes.index = 1;
 
     var prefixContent = "<p>The best price of " + productToSearch + " is </p>";
     var cardContent = "Price of " + productToSearch;
     var cardTitle = "Price of " + productToSearch;
 
     fetchDataFromQuasar(productToSearch, function (events) {
-        var speechText = "",
-            i;
+        var speechText = "", i;
         sessionAttributes.text = events;
         session.attributes = sessionAttributes;
+
+        events = events[0];
         if (events.length == 0) {
             speechText = "There is a problem connecting to Comparison Guru at this time. Please try again later.";
             cardContent = speechText;
             response.tell(speechText);
         } else {
-            speechText = events.price + "<p>You can buy this in " + 
-                            events.store + ".</p><p>Do you want to hear the next best price?</p>";
+            speechText = events.price +  " " + events.currency + 
+                    "<p>You can buy this in " + events.store + 
+                    ".</p><p>Do you want to hear the next best price?</p>";
             var speechOutput = {
                 speech: "<speak>" + prefixContent + speechText + "</speak>",
                 type: AlexaSkill.speechOutputType.SSML
@@ -207,26 +204,32 @@ function handleNextEventRequest(intent, session, response) {
         result = sessionAttributes.text,
         speechText = "",
         cardContent = "",
-        repromptText = "Do you want to check the next best price of the product?",
+        repromptText = "Do you want to check the next best price of the product?", 
         i;
     if (!result) {
         speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product you want to check";
         cardContent = speechText;
     } else if (sessionAttributes.index >= result.length) {
-        speechText = "There are no more price information. Try to search for another product by saying <break time = \"0.3s\"/> get price of.";
+        speechText = "There are no more price information. Try to search for another product by saying <break time = \"0.3s\"/> get price of .";
         cardContent = "There are no more price information. Try to search for another product by saying, get price of.";
     } else {
-        for (i = 0; i < paginationSize; i++) {
+        for (i = 0; i < 1; i++) 
+        {
             if (sessionAttributes.index>= result.length) {
                 break;
             }
-            speechText = speechText + "<p>" + result[sessionAttributes.index] + "</p> ";
+            var product = result[sessionAttributes.index];
+            speechText = speechText + "<p>" + "The next best price is " + product.price + " " + product.currency + 
+                            " in " + product.store + "</p> ";
             cardContent = cardContent + result[sessionAttributes.index] + " ";
             sessionAttributes.index++;
         }
         if (sessionAttributes.index < result.length) {
             speechText = speechText + " Wanna check the next best price of the product?";
             cardContent = cardContent + " Wanna check the next best price of the product?";
+        } else {
+            speechText = speechText + "<p> Those were the first " + paginationSize + " best prices</p>";
+            cardContent = cardContent + "<p> Those were the first " + paginationSize + " best prices</p>";
         }
     }
     var speechOutput = {
@@ -262,9 +265,14 @@ function fetchDataFromQuasar(name, eventCallback) {
 function parseJson(inputText) {
 
     // Parse the input Text to convert string into JS object 
-    var text = JSON.parse(inputText);
+    var textJson = JSON.parse(inputText);
+    var products = new Array();
+
     // Return the first index of the array since this contain the cheapest price
-    return text[0];
+    for (var index = 0; index < paginationSize; index++) {
+        products.push(textJson[index]);
+    }
+    return products;
 }
 
 // Create the handler that responds to the Alexa Request.
