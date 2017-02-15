@@ -183,7 +183,8 @@ function handleFirstEventRequest(intent, session, response) {
             cardContent = speechText;
             response.tell(speechText);
         } else {
-            speechText = events + "<p>You can buy this in Best Buy.</p><p>Do you want to hear the next best price?</p>";
+            speechText = events.price + "<p>You can buy this in " + 
+                            events.store + ".</p><p>Do you want to hear the next best price?</p>";
             var speechOutput = {
                 speech: "<speak>" + prefixContent + speechText + "</speak>",
                 type: AlexaSkill.speechOutputType.SSML
@@ -250,8 +251,8 @@ function fetchDataFromQuasar(name, eventCallback) {
         });
 
         res.on('end', function () {
-            var stringResult = parseJson(body);
-            eventCallback(stringResult);
+            var result = parseJson(body);
+            eventCallback(result);
         });
     }).on('error', function (e) {
         console.log("Got error: ", e);
@@ -259,13 +260,11 @@ function fetchDataFromQuasar(name, eventCallback) {
 }
 
 function parseJson(inputText) {
-    var text = "";
-    // var total = inputText.substring(inputText.indexOf('"total\\": ')+10, inputText.indexOf(',\\n  \\"totalPages\\":'));
-    // if (Number(total) > 0) 
-    {
-        text = inputText.substring(inputText.indexOf('price\":\"')+8, inputText.indexOf('\",\"store\"'));
-    }
-    return text;
+
+    // Parse the input Text to convert string into JS object 
+    var text = JSON.parse(inputText);
+    // Return the first index of the array since this contain the cheapest price
+    return text[0];
 }
 
 // Create the handler that responds to the Alexa Request.
