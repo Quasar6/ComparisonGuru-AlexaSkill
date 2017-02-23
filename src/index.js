@@ -15,7 +15,8 @@
  * User:  "Alexa, open ComparisonGuru"
  * Alexa: "Welcome to Comparison Guru. What product you want to check?"
  * 
- * Change History: Feb 6, 2017 - Created 
+ * Change History:  Feb 6, 2017     - Created 
+ *                  Feb 22, 2017    - Add logic to accomodate both sale and regular prices 
  */
 
 
@@ -39,7 +40,7 @@ var urlPrefix = 'https://cguru-quasar6.rhcloud.com/cheapest/';
 /**
  * Variable defining number of events to be read at one time
  */
-var paginationSize = 3;
+var paginationSize = 10;
 
 /**
  * Variable defining the length of the delimiter between events
@@ -179,8 +180,14 @@ function handleFirstEventRequest(intent, session, response) {
             cardContent = speechText;
             response.tell(speechText);
         } else {
-            speechText = events.price +  " " + events.currency + 
-                    "<p>You can buy this in " + events.store + 
+            var price = events.salePrice;
+            var onSale = ",it is currently on sale";
+            if (price == null) {
+                price = events.price
+                onSale = ""
+            }
+            speechText = price +  " " + events.currency + 
+                    "<p>In " + events.store + onSale + ", the description is, " + events.name + 
                     ".</p><p>Do you want to hear the next best price?</p>";
             var speechOutput = {
                 speech: "<speak>" + prefixContent + speechText + "</speak>",
@@ -219,13 +226,19 @@ function handleNextEventRequest(intent, session, response) {
                 break;
             }
             var product = result[sessionAttributes.index];
-            speechText = speechText + "<p>" + "The next best price is " + product.price + " " + product.currency + 
-                            " in " + product.store + "</p> ";
+            var price = product.salePrice;
+            var onSale = "It is currently on sale in ";
+            if (price == null) {
+                price = product.price
+                onSale = "In "
+            }
+            speechText = speechText + "<p>" + "The next best price is " + price + " " + product.currency + 
+                            "</p><p>" + onSale + product.store + "</p> " + ", the description is, " + product.name;
             cardContent = cardContent + result[sessionAttributes.index] + " ";
             sessionAttributes.index++;
         }
         if (sessionAttributes.index < result.length) {
-            speechText = speechText + " Wanna check the next best price of the product?";
+            speechText = speechText + " <p>Wanna check the next best price of the product?</p>";
             cardContent = cardContent + " Wanna check the next best price of the product?";
         } else {
             speechText = speechText + "<p> Those were the first " + paginationSize + " best prices</p>";
