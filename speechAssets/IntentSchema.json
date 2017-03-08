@@ -6,6 +6,10 @@
         {
           "name": "product",
           "type": "AMAZON.LITERAL"
+        },
+        {
+          "name": "store",
+          "type": "CUSTOM_LIST_STORE"
         }
       ]
     },

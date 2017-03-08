@@ -35,7 +35,14 @@ var AlexaSkill = require('./AlexaSkill');
 /**
  * URL prefix to download history content from Quasar's backend
  */
-var urlPrefix = 'https://cguru-quasar6.rhcloud.com/cheapest/';
+var urlPrefix = 
+{
+    "general": "https://cguru-quasar6.rhcloud.com/cheapest/",
+    "bestbuy": "https://cguru-quasar6.rhcloud.com/cheapest/",
+    "walmart": "https://cguru-quasar6.rhcloud.com/cheapest/",
+    "ebay": "https://cguru-quasar6.rhcloud.com/cheapest/",
+    "amazon": "https://cguru-quasar6.rhcloud.com/cheapest/"
+};
 
 /**
  * Variable defining number of events to be read at one time
@@ -149,12 +156,18 @@ function getWelcomeResponse(response) {
  * Gets a poster prepares the speech to reply to the user.
  */
 function handleFirstEventRequest(intent, session, response) {
+    var storeName = "general";
     var productSlot = intent.slots.product;
     var productSlotValue = (productSlot.value);
+    var storeSlot = intent.slots.store;
+    if (storeSlot.value != null && storeSlot.value != "") {
+        storeName = storeSlot.value;
+    }
 
     // Get the product to search 
     var productToSearch = productSlotValue;
     if (productSlotValue.startsWith('price of ')) {
+        productSlotValue.substring()
         productToSearch = productSlotValue.substring('price of '.length);
     }
     
@@ -169,7 +182,7 @@ function handleFirstEventRequest(intent, session, response) {
     var cardContent = "Price of " + productToSearch;
     var cardTitle = "Price of " + productToSearch;
 
-    fetchDataFromQuasar(productToSearch, function (events) {
+    fetchDataFromQuasar(productToSearch, storeName, function (events) {
         var speechText = "", i;
         sessionAttributes.text = events;
         session.attributes = sessionAttributes;
@@ -256,9 +269,14 @@ function handleNextEventRequest(intent, session, response) {
     response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
 }
 
-function fetchDataFromQuasar(name, eventCallback) {
-    var url = urlPrefix + name + "/undefined_category";
-
+function fetchDataFromQuasar(name, storeName, eventCallback) {
+    var url;
+    if (urlPrefix[storeName] == null){
+        url = urlPrefix["general"] + name + "/undefined_category";
+    } else {
+        url = urlPrefix[storeName] + name + "/undefined_category";
+    }
+     
     https.get(url, function(res) {
         var body = '';
 
@@ -276,7 +294,7 @@ function fetchDataFromQuasar(name, eventCallback) {
 }
 
 function parseJson(inputText) {
-
+    console.log(inputText);
     // Parse the input Text to convert string into JS object 
     var textJson = JSON.parse(inputText);
     var products = new Array();

@@ -1,4 +1,4 @@
-GetFirstEventIntent get {price of|product}
+GetFirstEventIntent get {price of|product} from {store}
 GetFirstEventIntent check the {price of|product}
 GetFirstEventIntent give me the {price of|product}
 GetFirstEventIntent get cheapest {price of|product}
