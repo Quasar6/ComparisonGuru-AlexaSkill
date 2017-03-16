@@ -306,6 +306,9 @@ function parseJson(inputText) {
     return products;
 }
 
+// Expose ComparisonGuruSkill so we can test it.
+exports.ComparisonGuruSkill = ComparisonGuruSkill;
+
 // Create the handler that responds to the Alexa Request.
 exports.handler = function (event, context) {
     // Create an instance of the ComparisonGuru Skill.
