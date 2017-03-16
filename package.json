@@ -11,7 +11,11 @@
   ],
   "dependencies": {
     "alexa-sdk": "latest",
+    "underscore": "^1.8.3",
     "https": "latest"
+  },
+  "devDependencies": {
+    "htmlparser2": "^3.9.0"
   },
   "author": "Team Quasar - Shelalaine Chan",
   "license": "ISC"
