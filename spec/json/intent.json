@@ -1,3 +1,12 @@
 {
-	"slots": {}
+	"slots": {
+		"product": {
+          	"name": "product",
+          	"value": "price of iphone 7"
+        },
+        "store": {
+          	"name": "store",
+          	"value": "BestBuy"
+        }
+	}
 }

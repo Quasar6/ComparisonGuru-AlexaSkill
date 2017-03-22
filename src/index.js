@@ -210,7 +210,8 @@ function handleFirstEventRequest(intent, session, response) {
                 speech: repromptText,
                 type: AlexaSkill.speechOutputType.PLAIN_TEXT
             };
-            response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
+            console.log(speechOutput.speech);
+            this.response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
         }
     });
 }
@@ -294,7 +295,8 @@ function fetchDataFromQuasar(name, storeName, eventCallback) {
 }
 
 function parseJson(inputText) {
-    console.log(inputText);
+    console.log('parseJson get called');
+    // console.log(inputText);
     // Parse the input Text to convert string into JS object 
     var textJson = JSON.parse(inputText);
     var products = new Array();
