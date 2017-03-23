@@ -139,7 +139,17 @@ Response.prototype = (function () {
                 outputSpeech: createSpeechObject(options.reprompt)
             };
         }
-        if (options.cardTitle && options.cardContent) {
+        if (options.cardImage) {
+            alexaResponse.card = {
+                type: "Standard",
+                title: options.cardTitle,
+                text: options.cardContent,
+                image: {
+                    smallImageUrl: options.cardImage,
+                    largeImageUrl: options.cardImage
+                }
+            };
+        } else if (options.cardTitle && options.cardContent) {
             alexaResponse.card = {
                 type: "Simple",
                 title: options.cardTitle,
@@ -188,6 +198,17 @@ Response.prototype = (function () {
                 reprompt: repromptSpeech,
                 cardTitle: cardTitle,
                 cardContent: cardContent,
+                shouldEndSession: false
+            }));
+        },
+        askWithCardStandard: function (speechOutput, repromptSpeech, cardTitle, cardContent, cardImage) {
+            this._context.succeed(buildSpeechletResponse({
+                session: this._session,
+                output: speechOutput,
+                reprompt: repromptSpeech,
+                cardTitle: cardTitle,
+                cardContent: cardContent,
+                cardImage: cardImage,
                 shouldEndSession: false
             }));
         }
