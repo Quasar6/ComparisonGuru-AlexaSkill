@@ -1,0 +1,32 @@
+{
+  "session": {
+    "sessionId": "SessionId.bc415a54-8aef-4dea-93b6-8bd3b1bcf614",
+    "application": {
+      "applicationId": "amzn1.ask.skill.36d502a4-96b4-4bd2-a29b-f8b1214bad8e"
+    },
+    "attributes": {},
+    "user": {
+      "userId": "amzn1.ask.account.AESLTCZIYK4WD3I2S7WTLGGFJBAJSA3QK72M6XRZS54R46RTSBUVUHENV7DY2CRR3V77SCHQW7UZ6QIREDILAOCD672DDEILUBBSO6TG2D5OYJ5IBH2YPKKJVVLZ7PIXBS4IXVTPYB7PYVRY3Z3DE6TJ4XOUR54D6JBTYNSNKXENHP3VQNQ3NOHIJACJVJEGMTKUFOPHKUTLWEA"
+    },
+    "new": false
+  },
+  "request": {
+    "type": "IntentRequest",
+    "requestId": "EdwRequestId.8b5d87ed-2509-4591-bb64-af146465c9ac",
+    "locale": "en-US",
+    "timestamp": "2017-02-15T17:13:34Z",
+    "intent": {
+      "name": "GetFirstEventIntent",
+      "slots": {
+        "product": {
+          "name": "product",
+          "value": "price of samsung s7 edge phone"
+        },
+        "custom": {
+          "name": "custom"
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

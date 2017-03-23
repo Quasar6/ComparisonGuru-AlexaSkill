@@ -1,0 +1,58 @@
+{
+  "session": {
+    "sessionId": "SessionId.de01c85c-6cd4-4367-9b10-9de0b9a2ef8c",
+    "application": {
+      "applicationId": "amzn1.ask.skill.36d502a4-96b4-4bd2-a29b-f8b1214bad8e"
+    },
+    "attributes": {
+      "index": 0,
+      "text": [
+        {
+          "id": 120126020,
+          "name": "XShieldsÂ© High Definition (HD+) Screen Protectors for Huawei GX8 (Maximum Cla...",
+          "category": "undefined_category",
+          "price": 2.99,
+          "store": "walmart",
+          "currency": "USD",
+          "imageURL": "http://c.affil.walmart.com/t/api02?l=http%3A%2F%2Fwww.walmart.com%2Fip%2FXShields-High-Definition-HD-Screen-Protectors-for-Huawei-GX8-Maximum-Cla%2F120126020%3Faffp1%3DS220Tk032yAIcuGABYBjOW19gjZ95ujWMl-DNEqqiK0%26affilsrc%3Dapi%26veh%3Daff%26wmlspartner%3Dreadonlyapi",
+          "url": "https://i5.walmartimages.com/asr/85078779-8e7c-4e83-8774-594a9ec1a695_1.a2ded54d024cbe5a1ed56eb21977ca31.jpeg?odnHeight=100&odnWidth=100&odnBg=FFFFFF"
+        },
+        {
+          "id": 185181905,
+          "name": "IMPACT XL Kickstand Case, ZTE Concord 2, Black",
+          "category": "undefined_category",
+          "price": 4,
+          "store": "walmart",
+          "currency": "USD",
+          "imageURL": "http://c.affil.walmart.com/t/api02?l=http%3A%2F%2Fwww.walmart.com%2Fip%2FIMPACT-XL-Kickstand-Case-ZTE-Concord-2-Black%2F185181905%3Faffp1%3DS220Tk032yAIcuGABYBjOW19gjZ95ujWMl-DNEqqiK0%26affilsrc%3Dapi%26veh%3Daff%26wmlspartner%3Dreadonlyapi",
+          "url": "https://i5.walmartimages.com/asr/3a885b6a-9fea-4ba3-b43d-ff346cc5ea25_1.102329ce9bb6378b7b62e7d4ec65f1b3.jpeg?odnHeight=100&odnWidth=100&odnBg=FFFFFF"
+        },
+        {
+          "id": 115243671,
+          "name": "PLUS SIZE XL LARGE Pouch Case Holster for iPHONE 6 PLUS [ 5.5''] ~ Heavy Duty Black Nylon Canvas Velcro Flap Vertical / Horizontal Case with Steel Belt Clip Holster + Carabiner D Ring Hook",
+          "category": "undefined_category",
+          "price": 6.95,
+          "store": "walmart",
+          "currency": "USD",
+          "imageURL": "http://c.affil.walmart.com/t/api02?l=http%3A%2F%2Fwww.walmart.com%2Fip%2FPLUS-SIZE-XL-LARGE-Pouch-Case-Holster-iPHONE-6-PLUS-5-5-Heavy-Duty-Black-Nylon-Canvas-Velcro-Flap-Vertical-Horizontal-Case-Steel-Belt-Clip-Holster-Ca%2F115243671%3Faffp1%3DS220Tk032yAIcuGABYBjOW19gjZ95ujWMl-DNEqqiK0%26affilsrc%3Dapi%26veh%3Daff%26wmlspartner%3Dreadonlyapi",
+          "url": "https://i5.walmartimages.com/asr/5467bd98-c3ea-4f7c-abe9-0baea47e5beb_1.2f514ef02d11989684e90458d129f1ec.jpeg?odnHeight=100&odnWidth=100&odnBg=FFFFFF"
+        }
+      ]
+    },
+    "user": {
+      "userId": "amzn1.ask.account.AHHHI7FHAWHFQJZYY6OF3TQUMGXL3TUTO6MTMO4ILWAG6PM5BFZ7VKS34MXVMD6OOVCUQ6ZVHWG3BHVYELHN7VZUKLTR244NIRKO24Z3CLROXV2W5QTBWGDKFJSJZGGUZCCOU7FKVD44ATJAFWWSQM2URIC2EMIQE52XAPAT47E7WDNSIBYCMP3PDAQVVXHS3IA6PQZYYDJEDEQ"
+    },
+    "new": false
+  },
+  "request": {
+    "type": "IntentRequest",
+    "requestId": "EdwRequestId.e0a1e68a-8a97-4f9b-bb39-6fae6a395d33",
+    "locale": "en-US",
+    "timestamp": "2017-02-15T20:28:09Z",
+    "intent": {
+      "name": "GetNextEventIntent",
+      "slots": {}
+    }
+  },
+  "version": "1.0"
+}
