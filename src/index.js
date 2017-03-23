@@ -17,6 +17,9 @@
  * 
  * Change History:  Feb 6, 2017     - Created 
  *                  Feb 22, 2017    - Add logic to accomodate both sale and regular prices 
+ *                  Mar 22, 2017    - Replace askWithCard with askWithCardStandard method in 
+ *                                      order to show the product image
+ *                                  - Add setupCardContent and setupProductImage methods
  */
 
 
@@ -175,12 +178,13 @@ function handleFirstEventRequest(intent, session, response) {
     var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.";
 
     var sessionAttributes = {};
-    // Read the first 3 events, then set the count to 3
+    // Read the first event, then set the count to 1
     sessionAttributes.index = 1;
+    sessionAttributes.productToSearch = productToSearch;
 
     var prefixContent = "<p>The best price of " + productToSearch + " is </p>";
-    var cardContent = "Price of " + productToSearch;
-    var cardTitle = "Price of " + productToSearch;
+    // var cardContent = "Price of " + productToSearch;
+    var cardTitle = "[1 / " + paginationSize + "] " + productToSearch;
 
     fetchDataFromQuasar(productToSearch, storeName, function (events) {
         var speechText = "", i;
@@ -190,7 +194,7 @@ function handleFirstEventRequest(intent, session, response) {
         events = events[0];
         if (events.length == 0) {
             speechText = "There is a problem connecting to Comparison Guru at this time. Please try again later.";
-            cardContent = speechText;
+            // cardContent = speechText;
             response.tell(speechText);
         } else {
             var price = events.salePrice;
@@ -210,24 +214,54 @@ function handleFirstEventRequest(intent, session, response) {
                 speech: repromptText,
                 type: AlexaSkill.speechOutputType.PLAIN_TEXT
             };
-            response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
+
+            response.askWithCardStandard(speechOutput, 
+                        repromptOutput, 
+                        cardTitle, 
+                        setupCardContent(events), 
+                        setupProductImage(events));
         }
     });
+}
+
+/**
+ * Sets up the content of the Alexa card to be shown
+ * @param events 
+ */
+function setupCardContent(events) {
+    var price = events.salePrice;
+    if (price == null) {
+        price = events.price
+    }
+    return "Price: " + price + " " + events.currency + "\n\nStore: " + events.store + "\n"+ events.url;
+}
+
+/**
+ * Sets up the image of the product as part of the Alexa card to be shown
+ */
+function setupProductImage(events) {
+    var cardImage = "https://";
+    if (events.imageURL && events.store != "bestbuy") {
+        var strResult = (events.imageURL).split("://")
+        cardImage += strResult[1];
+    }
+    return cardImage;
 }
 
 /**
  * Gets a poster prepares the speech to reply to the user.
  */
 function handleNextEventRequest(intent, session, response) {
-    var cardTitle = "More prices to check",
-        sessionAttributes = session.attributes,
+    var sessionAttributes = session.attributes,
         result = sessionAttributes.text,
         speechText = "",
         cardContent = "",
+        cardImage = "https",
         repromptText = "Do you want to check the next best price of the product?", 
         i;
+    var cardTitle = "[" + (sessionAttributes.index + 1) + " / " + paginationSize + "] " + sessionAttributes.productToSearch;
     if (!result) {
-        speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product you want to check";
+        speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product do you want to check?";
         cardContent = speechText;
     } else if (sessionAttributes.index >= result.length) {
         speechText = "There are no more price information. Try to search for another product by saying <break time = \"0.3s\"/> get price of .";
@@ -247,15 +281,17 @@ function handleNextEventRequest(intent, session, response) {
             }
             speechText = speechText + "<p>" + "The next best price is " + price + " " + product.currency + 
                             "</p><p>" + onSale + product.store + "</p> " + ", the description is, " + product.name;
-            cardContent = cardContent + result[sessionAttributes.index] + " ";
+            // cardContent = cardContent + result[sessionAttributes.index] + " ";
+            cardContent = setupCardContent(result[sessionAttributes.index]);
+            cardImage = setupProductImage(result[sessionAttributes.index]);
             sessionAttributes.index++;
         }
         if (sessionAttributes.index < result.length) {
             speechText = speechText + " <p>Wanna check the next best price of the product?</p>";
-            cardContent = cardContent + " Wanna check the next best price of the product?";
+            // cardContent = cardContent + " Wanna check the next best price of the product?";
         } else {
             speechText = speechText + "<p> Those were the first " + paginationSize + " best prices</p>";
-            cardContent = cardContent + "<p> Those were the first " + paginationSize + " best prices</p>";
+            // cardContent = cardContent + "<p> Those were the first " + paginationSize + " best prices</p>";
         }
     }
     var speechOutput = {
@@ -266,7 +302,11 @@ function handleNextEventRequest(intent, session, response) {
         speech: repromptText,
         type: AlexaSkill.speechOutputType.PLAIN_TEXT
     };
-    response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
+    response.askWithCardStandard(speechOutput, 
+            repromptOutput, 
+            cardTitle, 
+            cardContent, 
+            cardImage);
 }
 
 function fetchDataFromQuasar(name, storeName, eventCallback) {
