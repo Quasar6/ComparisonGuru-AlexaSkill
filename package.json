@@ -11,8 +11,8 @@
   ],
   "dependencies": {
     "alexa-sdk": "latest",
-    "underscore": "^1.8.3",
-    "https": "latest"
+    "https": "latest",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "htmlparser2": "^3.9.0"

@@ -6,22 +6,27 @@ var index = require('../../src/index'),
 
 describe('index', function() {
     var comparisonGuru;
-
+    // var funcTest;
+    // var testIndex;
     framework.beforeEachMatchers();
     beforeEach(function() {
+       
         comparisonGuru = new index.ComparisonGuruSkill();
+        
     });
-    /*
-    it('HelloWorldIntent', function() {
-        helloWorld.intentHandlers.HelloWorldIntent(intent, session, response);
-
-        expect(response.tellWithCard).toHaveBeenCalled();
-        args = response.tellWithCard.argsForCall[ 0 ];
-        expect(args[ 0 ]).isSSML('Hello World!');
-        expect(args[ 1 ]).toEqual(jasmine.any(String));
-        expect(args[ 2 ]).toEqual(jasmine.any(String));
+    
+    it('GetFirstEventIntent', function() {
+        var func = comparisonGuru.intentHandlers[ 'GetFirstEventIntent' ](intent, session, response);
+        // expect(comparisonGuru.handleFirstEventRequest).toHaveBeenCalled();
+        // response.askWithCard(speechOutput, repromptOutput, cardTitle, cardContent);
+        // expect(response.call).toHaveBeenCalled();
+        // expect(fetchDataFromQuasar).toHaveBeenCalled();
+        // args = response.tellWithCard.argsForCall[ 0 ];
+        // expect(args[ 0 ]).isSSML('Hello World!');
+        // expect(args[ 1 ]).toEqual(jasmine.any(String));
+        // expect(args[ 2 ]).toEqual(jasmine.any(String));
     });
-    */
+    
     it('AMAZON.HelpIntent', function() {
         comparisonGuru.intentHandlers[ 'AMAZON.HelpIntent' ](intent, session, response);
 
@@ -29,5 +34,15 @@ describe('index', function() {
         args = response.ask.argsForCall[ 0 ];
         expect(args[0].speech).toEqual('With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product you want to check?');
         expect(args[1].speech).toEqual("What product you want to check?");
+    });
+
+    it('AMAZON.StopIntent', function() {
+        comparisonGuru.intentHandlers[ 'AMAZON.StopIntent' ](intent, session, response);
+        expect(response.tell).toHaveBeenCalled();
+    });
+
+    it('AMAZON.CancelIntent', function() {
+        comparisonGuru.intentHandlers[ 'AMAZON.CancelIntent' ](intent, session, response);
+        expect(response.tell).toHaveBeenCalled();
     });
 });
