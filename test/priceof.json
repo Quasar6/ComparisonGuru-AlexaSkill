@@ -1,31 +1,39 @@
 {
   "session": {
-    "sessionId": "SessionId.bc415a54-8aef-4dea-93b6-8bd3b1bcf614",
+    "sessionId": "SessionId.557e8bbe-92eb-4866-a400-6c5de68401b3",
     "application": {
       "applicationId": "amzn1.ask.skill.36d502a4-96b4-4bd2-a29b-f8b1214bad8e"
     },
-    "attributes": {},
+    "attributes": {
+      "index": 1,
+      "productToSearch": "macbook air laptop",
+      "text": [
+        {
+          "id": "B002C7489S",
+          "name": "Apple MacBook MC516LL/A 13.3-Inch Laptop",
+          "category": "Personal Computers",
+          "price": 4999.99,
+          "store": "amazon",
+          "currency": "USD",
+          "url": "https://www.amazon.ca/Apple-MacBook-MC516LL-13-3-Inch-Laptop/dp/B002C7489S%3FSubscriptionId%3DAKIAJJDHLVNBFUX7U3RA%26tag%3Dmapd2016capst-20%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3DB002C7489S",
+          "imageURL": "https://images-na.ssl-images-amazon.com/images/I/41Dk%2BMt49GL._SL75_.jpg",
+          "shippingCountry": "US"
+        }
+      ]
+    },
     "user": {
-      "userId": "amzn1.ask.account.AESLTCZIYK4WD3I2S7WTLGGFJBAJSA3QK72M6XRZS54R46RTSBUVUHENV7DY2CRR3V77SCHQW7UZ6QIREDILAOCD672DDEILUBBSO6TG2D5OYJ5IBH2YPKKJVVLZ7PIXBS4IXVTPYB7PYVRY3Z3DE6TJ4XOUR54D6JBTYNSNKXENHP3VQNQ3NOHIJACJVJEGMTKUFOPHKUTLWEA"
+      "userId": "amzn1.ask.account.AHHHI7FHAWHFQJZYY6OF3TQUMGXL3TUTO6MTMO4ILWAG6PM5BFZ7VKS34MXVMD6OOVCUQ6ZVHWG3BHVYELHN7VZUKLTR244NIRKO24Z3CLROXV2W5QTBWGDKFJSJZGGUZCCOU7FKVD44ATJAFWWSQM2URIC2EMIQE52XAPAT47E7WDNSIBYCMP3PDAQVVXHS3IA6PQZYYDJEDEQ"
     },
     "new": false
   },
   "request": {
     "type": "IntentRequest",
-    "requestId": "EdwRequestId.8b5d87ed-2509-4591-bb64-af146465c9ac",
+    "requestId": "EdwRequestId.89abefc4-29fb-4616-ad7e-b43b7ce1e1b1",
     "locale": "en-US",
-    "timestamp": "2017-02-15T17:13:34Z",
+    "timestamp": "2017-03-29T17:42:28Z",
     "intent": {
-      "name": "GetFirstEventIntent",
-      "slots": {
-        "product": {
-          "name": "product",
-          "value": "price of samsung s7 edge phone"
-        },
-        "custom": {
-          "name": "custom"
-        }
-      }
+      "name": "GetNextEventIntent",
+      "slots": {}
     }
   },
   "version": "1.0"

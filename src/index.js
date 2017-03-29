@@ -113,8 +113,8 @@ ComparisonGuruSkill.prototype.intentHandlers = {
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
-        var speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product you want to check?";
-        var repromptText = "What product you want to check?";
+        var speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. To search for a product, say, get price of, then the product name. For example, get price of macbook air laptop.";
+        var repromptText = "Now what product do you want to check?";
         var speechOutput = {
             speech: speechText,
             type: AlexaSkill.speechOutputType.PLAIN_TEXT
@@ -149,10 +149,10 @@ ComparisonGuruSkill.prototype.intentHandlers = {
 
 function getWelcomeResponse(response) {
     // If we wanted to initialize the session to have some attributes we could add those here.
-    var cardTitle = "Price Comparison Guru";
+    var cardTitle = "Welcome to Comparison Guru";
     var repromptText = "<p>With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.</p> <p>Now, what product do you want to check?</p>";
     var speechText = "<p>Welcome to Comparison Guru.</p> <p>What product do you want to check?</p>";
-    var cardOutput = "Comparison Guru. Name the product that you want to price check.";
+    var cardOutput = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. To search for a product, please say, \"Get the price of \", followed by the product name.\n\nFor example:\n\"Get the price of macbook air laptop\"";
     // If the user either does not reply to the welcome message or says something that is not
     // understood, they will be prompted again with this text.
 
@@ -280,10 +280,12 @@ function handleNextEventRequest(intent, session, response) {
     var cardTitle = "[" + (sessionAttributes.index + 1) + " / " + paginationSize + "] " + sessionAttributes.productToSearch;
     if (!result) {
         speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product do you want to check?";
-        cardContent = speechText;
+        // cardContent = speechText;
+        response.tell(speechText);
     } else if (sessionAttributes.index >= result.length) {
-        speechText = "There are no more price information. Try to search for another product by saying <break time = \"0.3s\"/> get price of .";
-        cardContent = "There are no more price information. Try to search for another product by saying, get price of.";
+        speechText = "There are no more price information. Try to search for another product.";
+        // cardContent = "There are no more price information. Try to search for another product by saying, get price of.";
+        response.tell(speechText)
     } else {
         for (i = 0; i < 1; i++) 
         {
@@ -311,20 +313,21 @@ function handleNextEventRequest(intent, session, response) {
             speechText = speechText + "<p> Those were the first " + paginationSize + " best prices</p>";
             // cardContent = cardContent + "<p> Those were the first " + paginationSize + " best prices</p>";
         }
+
+        var speechOutput = {
+            speech: "<speak>" + speechText + "</speak>",
+            type: AlexaSkill.speechOutputType.SSML
+        };
+        var repromptOutput = {
+            speech: repromptText,
+            type: AlexaSkill.speechOutputType.PLAIN_TEXT
+        };
+        response.askWithCardStandard(speechOutput, 
+                repromptOutput, 
+                cardTitle, 
+                cardContent, 
+                cardImage);
     }
-    var speechOutput = {
-        speech: "<speak>" + speechText + "</speak>",
-        type: AlexaSkill.speechOutputType.SSML
-    };
-    var repromptOutput = {
-        speech: repromptText,
-        type: AlexaSkill.speechOutputType.PLAIN_TEXT
-    };
-    response.askWithCardStandard(speechOutput, 
-            repromptOutput, 
-            cardTitle, 
-            cardContent, 
-            cardImage);
 }
 
 function fetchDataFromQuasar(name, storeName, eventCallback) {
