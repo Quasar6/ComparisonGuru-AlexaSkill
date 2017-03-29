@@ -20,6 +20,10 @@
  *                  Mar 22, 2017    - Replace askWithCard with askWithCardStandard method in 
  *                                      order to show the product image
  *                                  - Add setupCardContent and setupProductImage methods
+ *                  Mar 29, 2017    - Add handling to display Walmart and BestBuy logos 
+ *                                    for the card image of these stores since the image URL
+ *                                    cannot be properly rendered in the Amazon Echo page or
+ *                                    in the Alexa companion app
  */
 
 
@@ -46,6 +50,14 @@ var urlPrefix =
     "ebay": "https://cguru-quasar6.rhcloud.com/cheapest/",
     "amazon": "https://cguru-quasar6.rhcloud.com/cheapest/"
 };
+
+/**
+ * URL prefix containing store logo images
+ */
+var urlLogoPrefix = {
+    "bestbuy": "https://s3.amazonaws.com/comparisonguru-pics/bestbuy.png",
+    "walmart": "https://s3.amazonaws.com/comparisonguru-pics/walmart.png"
+}
 
 /**
  * Variable defining number of events to be read at one time
@@ -138,7 +150,7 @@ ComparisonGuruSkill.prototype.intentHandlers = {
 function getWelcomeResponse(response) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var cardTitle = "Price Comparison Guru";
-    var repromptText = "<p>With Comparison Guru, you can compare product prices across major online shopping stores in Canada.</p> <p>Now, what product you want to check?</p>";
+    var repromptText = "<p>With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.</p> <p>Now, what product do you want to check?</p>";
     var speechText = "<p>Welcome to Comparison Guru.</p> <p>What product do you want to check?</p>";
     var cardOutput = "Comparison Guru. Name the product that you want to price check.";
     // If the user either does not reply to the welcome message or says something that is not
@@ -241,10 +253,16 @@ function setupCardContent(events) {
  */
 function setupProductImage(events) {
     var cardImage = "https://";
-    if (events.imageURL && events.store != "bestbuy") {
-        var strResult = (events.imageURL).split("://")
-        cardImage += strResult[1];
+
+    if (events.imageURL) {
+        if (events.store == "bestbuy" || events.store == "walmart") {
+            cardImage = urlLogoPrefix[events.store]
+        } else {
+            var strResult = (events.imageURL).split("://")
+            cardImage += strResult[1];
+        }
     }
+
     return cardImage;
 }
 
