@@ -45,10 +45,10 @@ var AlexaSkill = require('./AlexaSkill');
 var urlPrefix = 
 {
     "general": "https://cguru-quasar6.rhcloud.com/cheapest/",
-    "bestbuy": "https://cguru-quasar6.rhcloud.com/cheapest/",
-    "walmart": "https://cguru-quasar6.rhcloud.com/cheapest/",
-    "ebay": "https://cguru-quasar6.rhcloud.com/cheapest/",
-    "amazon": "https://cguru-quasar6.rhcloud.com/cheapest/"
+    "bestbuy": "https://cguru-quasar6.rhcloud.com/cheapest/bestbuy/",
+    "walmart": "https://cguru-quasar6.rhcloud.com/cheapest/walmart/",
+    "ebay": "https://cguru-quasar6.rhcloud.com/cheapest/ebay/",
+    "amazon": "https://cguru-quasar6.rhcloud.com/cheapest/amazon/"
 };
 
 /**
@@ -176,7 +176,7 @@ function handleFirstEventRequest(intent, session, response) {
     var productSlotValue = (productSlot.value);
     var storeSlot = intent.slots.store;
     if (storeSlot.value != null && storeSlot.value != "") {
-        storeName = storeSlot.value;
+        storeName = (storeSlot.value).toLowerCase();
     }
 
     // Get the product to search 
@@ -332,6 +332,11 @@ function handleNextEventRequest(intent, session, response) {
 
 function fetchDataFromQuasar(name, storeName, eventCallback) {
     var url;
+
+    if (storeName == "best buy") {
+        storeName = "bestbuy"
+    }
+
     if (urlPrefix[storeName] == null){
         url = urlPrefix["general"] + name + "/undefined_category";
     } else {
