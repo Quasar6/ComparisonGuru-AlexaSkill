@@ -24,13 +24,15 @@
  *                                    for the card image of these stores since the image URL
  *                                    cannot be properly rendered in the Amazon Echo page or
  *                                    in the Alexa companion app
+ *                  Apr 11, 2017    - Add handling when the slot value of the first intent is
+ *                                    "price of" or "price off"
  */
 
 
 /**
  * App ID for the skill
  */
-var APP_ID = undefined; //replace with 'amzn1.echo-sdk-ams.app.[your-unique-value-here]';
+var APP_ID = "amzn1.ask.skill.36d502a4-96b4-4bd2-a29b-f8b1214bad8e"; //replace with 'amzn1.echo-sdk-ams.app.[your-unique-value-here]';
 
 var https = require('https');
 
@@ -185,8 +187,15 @@ function handleFirstEventRequest(intent, session, response) {
         productSlotValue.substring()
         productToSearch = productSlotValue.substring('price of '.length);
     }
+
+    // Check if there is No valid product to be searched
+    if (productSlotValue == 'price of' || productSlotValue == 'price off') {
+        speechText = "Please try again. Say, \"get price of \", then the product. For example, \"get price of Samsung S7 phone\".";
+        // cardContent = speechText;
+        response.tell(speechText);
+        return;
+    }
     
-    var daySlot = intent.slots.product;
     var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.";
 
     var sessionAttributes = {};
@@ -196,7 +205,6 @@ function handleFirstEventRequest(intent, session, response) {
 
     var prefixContent = "<p>The best price of " + productToSearch + " is </p>";
     // var cardContent = "Price of " + productToSearch;
-    var cardTitle = "[1 / " + paginationSize + "] " + productToSearch;
 
     fetchDataFromQuasar(productToSearch, storeName, function (events) {
         var speechText = "", i;
@@ -210,13 +218,13 @@ function handleFirstEventRequest(intent, session, response) {
             response.tell(speechText);
         } else {
             var price = events.salePrice;
-            var onSale = ",it is currently on sale";
+            var onSale = ", it is currently on sale";
             if (price == null) {
                 price = events.price
                 onSale = ""
             }
             speechText = price +  " " + events.currency + 
-                    "<p>In " + events.store + onSale + ", the description is, " + events.name + 
+                    "<p>In " + events.store + onSale + ". The description is, " + events.name + 
                     ".</p><p>Do you want to hear the next best price?</p>";
             var speechOutput = {
                 speech: "<speak>" + prefixContent + speechText + "</speak>",
@@ -227,6 +235,7 @@ function handleFirstEventRequest(intent, session, response) {
                 type: AlexaSkill.speechOutputType.PLAIN_TEXT
             };
 
+            var cardTitle = "[1 / " + (sessionAttributes.text).length + "] " + productToSearch;
             response.askWithCardStandard(speechOutput, 
                         repromptOutput, 
                         cardTitle, 
@@ -277,7 +286,7 @@ function handleNextEventRequest(intent, session, response) {
         cardImage = "https",
         repromptText = "Do you want to check the next best price of the product?", 
         i;
-    var cardTitle = "[" + (sessionAttributes.index + 1) + " / " + paginationSize + "] " + sessionAttributes.productToSearch;
+    var cardTitle = "[" + (sessionAttributes.index + 1) + " / " + result.length + "] " + sessionAttributes.productToSearch;
     if (!result) {
         speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product do you want to check?";
         // cardContent = speechText;
@@ -310,7 +319,7 @@ function handleNextEventRequest(intent, session, response) {
             speechText = speechText + " <p>Wanna check the next best price of the product?</p>";
             // cardContent = cardContent + " Wanna check the next best price of the product?";
         } else {
-            speechText = speechText + "<p> Those were the first " + paginationSize + " best prices</p>";
+            speechText = speechText + "<p> Those were the first " + result.length + " best prices</p>";
             // cardContent = cardContent + "<p> Those were the first " + paginationSize + " best prices</p>";
         }
 
@@ -365,9 +374,13 @@ function parseJson(inputText) {
     // Parse the input Text to convert string into JS object 
     var textJson = JSON.parse(inputText);
     var products = new Array();
+    
+    // Setup the number of entries
+    var maxSize = textJson.length < 10 ? textJson.length : paginationSize;
+    // var maxSize = 3;
 
     // Return the first index of the array since this contain the cheapest price
-    for (var index = 0; index < paginationSize; index++) {
+    for (var index = 0; index < maxSize; index++) {
         products.push(textJson[index]);
     }
     return products;
@@ -382,4 +395,3 @@ exports.handler = function (event, context) {
     var skill = new ComparisonGuruSkill();
     skill.execute(event, context);
 };
-
