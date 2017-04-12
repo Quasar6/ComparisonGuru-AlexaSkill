@@ -38,6 +38,11 @@ var APP_ID = "amzn1.ask.skill.36d502a4-96b4-4bd2-a29b-f8b1214bad8e"; //replace w
 var https = require('https');
 
 /**
+ * Comparison Guru helper functions
+ */
+var CGDataHelper = require('./cgHelper');
+
+/**
  * The AlexaSkill Module that has the AlexaSkill prototype and helper functions
  */
 var AlexaSkill = require('./AlexaSkill');
@@ -171,63 +176,19 @@ function getWelcomeResponse(response) {
 }
 
 /**
- * Extract the store name 
- * @param {*} store 
- */
-function getStoreName(store) {
-    var storeName = "general";
-    var storeNames = ["amazon", "bestbuy", "ebay", "walmart"];
-    
-    for (var i = 0; i < storeNames.length; i++) {
-        if (store == storeNames[i]) {
-            return storeNames[i];
-        } else if (store == "best buy") {
-            return "bestbuy";
-        }
-    }
-    return storeName;
-}
-
-/**
- * Extract the product name and store if applicable
- * @param text - 
- */
-function getProductToSearch(text) {
-    // Array to be returned
-    var productInfo = {name: "", store: ""};
-    
-    // Split the "price of ", " in ", and store name
-    var productToSearch = text.toLowerCase().split(" in");
-
-    // Split the "price of " from the product name
-    if (productToSearch[0] != "price of" || productToSearch[0] != "price off") {
-        var productName = productToSearch[0].split("price of ");
-        productInfo.name = productName[1];
-
-        // Save the name of the store
-        if (productToSearch.length >= 2) {
-            productInfo.store = getStoreName(productToSearch[1].trim());
-        } else {
-            productInfo.store = getStoreName("");
-        }
-    }
-
-    return productInfo;
-}
-
-/**
  * Gets a poster prepares the speech to reply to the user.
  */
 function handleFirstEventRequest(intent, session, response) {
     var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.";
     
     // Extract the product information
-    var productInfo = getProductToSearch((intent.slots.product).value);
+    var cgDataHelper = new CGDataHelper();
+    var productInfo = cgDataHelper.getProductToSearch((intent.slots.product).value);
     // Check if there is No valid product to be searched
     if (productInfo.name === "") {
         speechText = "Please try again. Say, \"get price of \", then the product. For example, \"get price of Samsung S7 phone\".";
         // cardContent = speechText;
-        response.ask(speechText);
+        response.ask(speechText, repromptText);
         return;
     }
     var productToSearch = productInfo.name;
@@ -238,16 +199,15 @@ function handleFirstEventRequest(intent, session, response) {
     sessionAttributes.index = 1;
     sessionAttributes.productToSearch = productToSearch;
 
-    var prefixContent = "<p>The best price of " + productToSearch + " is </p>";
     // var cardContent = "Price of " + productToSearch;
 
     fetchDataFromQuasar(productToSearch, storeName, function (events) {
         var speechText;
 
         if (events.length == 0) {
-            speechText = "There is a problem connecting to Comparison Guru at this time. Please try again later.";
+            speechText = "There is a problem connecting to Comparison Guru at this time. Please try again.";
             // cardContent = speechText;
-            response.ask(speechText);
+            response.ask(speechText, repromptText);
         } else {
             sessionAttributes.text = events;
             session.attributes = sessionAttributes;
@@ -260,15 +220,22 @@ function handleFirstEventRequest(intent, session, response) {
             }
             speechText = price +  " " + events.currency + 
                     "<p>In " + events.store + onSale + ". The description is, " + events.name + ".</p><p>";
-                    
-            if ((sessionAttributes.text).length > 1) {
-                speechText += "Do you want to hear the next best price?</p>";
-            } else {
-                speechText += "I only have " + result.length + " result for this product </p>";
-            }
 
-            var speechOutput = {
-                speech: "<speak>" + prefixContent + speechText + "</speak>",
+            if ((sessionAttributes.text).length > 1) {
+                if ((sessionAttributes.text).length == 2) {
+                    speechText += "I have " + ((sessionAttributes.text).length - 1) + " more result";
+                } else {
+                    speechText += "I have " + ((sessionAttributes.text).length - 1) + " more results"; 
+                }
+                speechText += " for this product. </p><p>Do you want to hear the next best price?</p>";
+            } else {
+                speechText += "I only have " + sessionAttributes.text.length + " result for this product.</p>";
+            }
+            console.log(speechText);
+
+           var bestPrice = "<p>The best price of " + productToSearch + " is </p>";
+           var speechOutput = {
+                speech: "<speak>" + bestPrice + speechText + "</speak>",
                 type: AlexaSkill.speechOutputType.SSML
             };
 
@@ -333,11 +300,10 @@ function handleNextEventRequest(intent, session, response) {
     if (!result) {
         speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product do you want to check?";
         // cardContent = speechText;
-        response.tell(speechText);
+        response.ask(speechText, speechText);
     } else if (sessionAttributes.index >= result.length) {
-        speechText = "There are no more price information. Try to search for another product.";
-        // cardContent = "There are no more price information. Try to search for another product by saying, get price of.";
-        response.tell(speechText)
+        speechText = "There are no more price information. Try to search for another product by saying, get price of, then the product. For example, get price of XBox One game console.";
+        response.ask(speechText, speechText)
     } else {
         for (i = 0; i < 1; i++) 
         {
