@@ -201,7 +201,7 @@ Response.prototype = (function () {
                 shouldEndSession: false
             }));
         },
-        askWithCardStandard: function (speechOutput, repromptSpeech, cardTitle, cardContent, cardImage) {
+        askWithCardStandard: function (speechOutput, repromptSpeech, cardTitle, cardContent, cardImage, shouldEnd) {
             this._context.succeed(buildSpeechletResponse({
                 session: this._session,
                 output: speechOutput,
@@ -209,7 +209,7 @@ Response.prototype = (function () {
                 cardTitle: cardTitle,
                 cardContent: cardContent,
                 cardImage: cardImage,
-                shouldEndSession: false
+                shouldEndSession: shouldEnd
             }));
         }
     };

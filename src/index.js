@@ -26,6 +26,7 @@
  *                                    in the Alexa companion app
  *                  Apr 11, 2017    - Add handling when the slot value of the first intent is
  *                                    "price of" or "price off"
+ *                  Apr 12, 2017    - Create getProductToSearch and getStoreName functions 
  */
 
 
@@ -170,33 +171,67 @@ function getWelcomeResponse(response) {
 }
 
 /**
+ * Extract the store name 
+ * @param {*} store 
+ */
+function getStoreName(store) {
+    var storeName = "general";
+    var storeNames = ["amazon", "bestbuy", "ebay", "walmart"];
+    
+    for (var i = 0; i < storeNames.length; i++) {
+        if (store == storeNames[i]) {
+            return storeNames[i];
+        } else if (store == "best buy") {
+            return "bestbuy";
+        }
+    }
+    return storeName;
+}
+
+/**
+ * Extract the product name and store if applicable
+ * @param text - 
+ */
+function getProductToSearch(text) {
+    // Array to be returned
+    var productInfo = {name: "", store: ""};
+    
+    // Split the "price of ", " in ", and store name
+    var productToSearch = text.toLowerCase().split(" in");
+
+    // Split the "price of " from the product name
+    if (productToSearch[0] != "price of" || productToSearch[0] != "price off") {
+        var productName = productToSearch[0].split("price of ");
+        productInfo.name = productName[1];
+
+        // Save the name of the store
+        if (productToSearch.length >= 2) {
+            productInfo.store = getStoreName(productToSearch[1].trim());
+        } else {
+            productInfo.store = getStoreName("");
+        }
+    }
+
+    return productInfo;
+}
+
+/**
  * Gets a poster prepares the speech to reply to the user.
  */
 function handleFirstEventRequest(intent, session, response) {
-    var storeName = "general";
-    var productSlot = intent.slots.product;
-    var productSlotValue = (productSlot.value);
-    var storeSlot = intent.slots.store;
-    if (storeSlot.value != null && storeSlot.value != "") {
-        storeName = (storeSlot.value).toLowerCase();
-    }
-
-    // Get the product to search 
-    var productToSearch = productSlotValue;
-    if (productSlotValue.startsWith('price of ')) {
-        productSlotValue.substring()
-        productToSearch = productSlotValue.substring('price of '.length);
-    }
-
+    var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.";
+    
+    // Extract the product information
+    var productInfo = getProductToSearch((intent.slots.product).value);
     // Check if there is No valid product to be searched
-    if (productSlotValue == 'price of' || productSlotValue == 'price off') {
+    if (productInfo.name === "") {
         speechText = "Please try again. Say, \"get price of \", then the product. For example, \"get price of Samsung S7 phone\".";
         // cardContent = speechText;
-        response.tell(speechText);
+        response.ask(speechText);
         return;
     }
-    
-    var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.";
+    var productToSearch = productInfo.name;
+    var storeName = productInfo.store;    
 
     var sessionAttributes = {};
     // Read the first event, then set the count to 1
@@ -207,16 +242,16 @@ function handleFirstEventRequest(intent, session, response) {
     // var cardContent = "Price of " + productToSearch;
 
     fetchDataFromQuasar(productToSearch, storeName, function (events) {
-        var speechText = "", i;
-        sessionAttributes.text = events;
-        session.attributes = sessionAttributes;
+        var speechText;
 
-        events = events[0];
         if (events.length == 0) {
             speechText = "There is a problem connecting to Comparison Guru at this time. Please try again later.";
             // cardContent = speechText;
-            response.tell(speechText);
+            response.ask(speechText);
         } else {
+            sessionAttributes.text = events;
+            session.attributes = sessionAttributes;
+            events = events[0];
             var price = events.salePrice;
             var onSale = ", it is currently on sale";
             if (price == null) {
@@ -224,12 +259,19 @@ function handleFirstEventRequest(intent, session, response) {
                 onSale = ""
             }
             speechText = price +  " " + events.currency + 
-                    "<p>In " + events.store + onSale + ". The description is, " + events.name + 
-                    ".</p><p>Do you want to hear the next best price?</p>";
+                    "<p>In " + events.store + onSale + ". The description is, " + events.name + ".</p><p>";
+                    
+            if ((sessionAttributes.text).length > 1) {
+                speechText += "Do you want to hear the next best price?</p>";
+            } else {
+                speechText += "I only have " + result.length + " result for this product </p>";
+            }
+
             var speechOutput = {
                 speech: "<speak>" + prefixContent + speechText + "</speak>",
                 type: AlexaSkill.speechOutputType.SSML
             };
+
             var repromptOutput = {
                 speech: repromptText,
                 type: AlexaSkill.speechOutputType.PLAIN_TEXT
@@ -240,7 +282,8 @@ function handleFirstEventRequest(intent, session, response) {
                         repromptOutput, 
                         cardTitle, 
                         setupCardContent(events), 
-                        setupProductImage(events));
+                        setupProductImage(events),
+                        (sessionAttributes.text).length > 1 ? false : true);
         }
     });
 }
@@ -335,22 +378,13 @@ function handleNextEventRequest(intent, session, response) {
                 repromptOutput, 
                 cardTitle, 
                 cardContent, 
-                cardImage);
+                cardImage,
+                false);
     }
 }
 
 function fetchDataFromQuasar(name, storeName, eventCallback) {
-    var url;
-
-    if (storeName == "best buy") {
-        storeName = "bestbuy"
-    }
-
-    if (urlPrefix[storeName] == null){
-        url = urlPrefix["general"] + name + "/undefined_category";
-    } else {
-        url = urlPrefix[storeName] + name + "/undefined_category";
-    }
+    var url = urlPrefix[storeName] + name + "/undefined_category";
      
     https.get(url, function(res) {
         var body = '';
@@ -369,19 +403,22 @@ function fetchDataFromQuasar(name, storeName, eventCallback) {
 }
 
 function parseJson(inputText) {
-    console.log('parseJson get called');
+    // console.log('parseJson get called');
+    var products = new Array();
+
     // console.log(inputText);
     // Parse the input Text to convert string into JS object 
-    var textJson = JSON.parse(inputText);
-    var products = new Array();
-    
-    // Setup the number of entries
-    var maxSize = textJson.length < 10 ? textJson.length : paginationSize;
-    // var maxSize = 3;
+    try {
+        var textJson = JSON.parse(inputText);
 
-    // Return the first index of the array since this contain the cheapest price
-    for (var index = 0; index < maxSize; index++) {
-        products.push(textJson[index]);
+        // Setup the number of entries
+        var maxSize = textJson.length < 10 ? textJson.length : paginationSize;
+
+        // Return the first index of the array since this contain the cheapest price
+        for (var index = 0; index < maxSize; index++) {
+            products.push(textJson[index]);
+        }
+    } catch (e) {
     }
     return products;
 }
