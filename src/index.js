@@ -382,6 +382,7 @@ function parseJson(inputText) {
 
         // Return the first index of the array since this contain the cheapest price
         for (var index = 0; index < maxSize; index++) {
+            textJson[index].name = (textJson[index].name).replace("&", "and");
             products.push(textJson[index]);
         }
     } catch (e) {
