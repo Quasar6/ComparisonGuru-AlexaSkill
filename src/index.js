@@ -113,8 +113,12 @@ ComparisonGuruSkill.prototype.intentHandlers = {
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
-        var speechText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. To search for a product, say, get price of, then the product name. For example, get price of macbook air laptop.";
-        var repromptText = "Now what product do you want to check?";
+        // Initialize the session attributes
+        var sessionAttributes = {};
+        session.attributes = sessionAttributes;
+
+        var speechText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. To search for a product, say, get price of, then the product name. For example, get price of macbook air laptop. Now, what product do you want to check?";
+        var repromptText = "What product do you want to check?";
         var speechOutput = {
             speech: speechText,
             type: AlexaSkill.speechOutputType.PLAIN_TEXT
@@ -171,38 +175,53 @@ function getWelcomeResponse(response) {
  * Gets a poster prepares the speech to reply to the user.
  */
 function handleFirstEventRequest(intent, session, response) {
-    var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart.";
     
+    var speechText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. To search for a product, say, get the price of, then the product. For example, get the price of samsung s seven phone. Now, what product do you want to check?";
+    var repromptText = "What product do you want to check?";
+
+    // Initialize the session attributes
+    var sessionAttributes = {};
+    session.attributes = sessionAttributes;
+
+    // Setup the default speech to be spoken by alexa
+    var speechOutput = {
+        speech: speechText,
+        type: AlexaSkill.speechOutputType.PLAIN_TEXT
+    };
+
+    var repromptOutput = {
+        speech: repromptText,
+        type: AlexaSkill.speechOutputType.PLAIN_TEXT
+    };
+
+    // Exit if the user did not provide any product to search
+    if ((intent.slots.product).value == null) {
+        response.ask(speechOutput, repromptOutput);
+        return;
+    }
+
     // Extract the product information
     var cgDataHelper = new CGDataHelper();
     var productInfo = cgDataHelper.getProductToSearch((intent.slots.product).value);
-    // Check if there is No valid product to be searched
-    if (productInfo.name === "") {
-        speechText = "Please try again. Say, \"get the price of \", then the product. For example, \"get the price of Samsung S. Seven phone\".";
-        // cardContent = speechText;
-        response.ask(speechText, repromptText);
-        return;
-    }
     var productToSearch = productInfo.name;
     var storeName = productInfo.store;    
 
-    var sessionAttributes = {};
     // Read the first event, then set the count to 1
     sessionAttributes.index = 1;
     sessionAttributes.productToSearch = productToSearch;
-
-    // var cardContent = "Price of " + productToSearch;
 
     fetchDataFromQuasar(productToSearch, storeName, function (events) {
         var speechText;
 
         if (events.length == 0) {
-            speechText = "There is a problem connecting to Comparison Guru at this time. Please try again.";
-            // cardContent = speechText;
-            response.ask(speechText, repromptText);
+            if (storeName == "general") {
+                speechOutput.speech = "I'm sorry, I cannot find " + sessionAttributes.productToSearch + ". Try to search for another product. Now, what product do you want to check?"; 
+            } else {
+                speechOutput.speech = "I'm sorry, I cannot find " + sessionAttributes.productToSearch + " in " + storeName + ". Try to search for another product, or try to search the product from another store. Now, what product do you want to check?"; 
+            }
+            response.ask(speechOutput, repromptOutput);
         } else {
             sessionAttributes.text = events;
-            session.attributes = sessionAttributes;
             events = events[0];
             var price = events.salePrice;
             var onSale = ", it is currently on sale";
@@ -221,21 +240,14 @@ function handleFirstEventRequest(intent, session, response) {
                 }
                 speechText += " for this product. </p><p>Do you want to hear the next best price?</p>";
             } else {
-                speechText += "I only have " + sessionAttributes.text.length + " result for this product.</p>";
+                speechText += "I only have " + sessionAttributes.text.length + " result for this product.</p><p>To search for another product, say, get the price of, then the product. Now, what is the next product that you want to search?</p>";
             }
-            console.log(speechText);
+            // console.log(speechText);
 
-           var bestPrice = "<p>The best price of " + productToSearch + " is </p>";
-           var speechOutput = {
-                speech: "<speak>" + bestPrice + speechText + "</speak>",
-                type: AlexaSkill.speechOutputType.SSML
-            };
-
-            var repromptOutput = {
-                speech: repromptText,
-                type: AlexaSkill.speechOutputType.PLAIN_TEXT
-            };
-
+            // Setup the speech to say when product information is available
+            speechOutput.speech = "<speak>" + "<p>The best price of " + productToSearch + " is </p>" + speechText + "</speak>";
+            speechOutput.type = AlexaSkill.speechOutputType.SSML;
+           
             var cardTitle = "[1 / " + (sessionAttributes.text).length + "] " + productToSearch;
             response.askWithCardStandard(speechOutput, 
                         repromptOutput, 
@@ -251,23 +263,35 @@ function handleFirstEventRequest(intent, session, response) {
  * Gets a poster prepares the speech to reply to the user.
  */
 function handleNextEventRequest(intent, session, response) {
+
     var cgDataHelper = new CGDataHelper();
     var sessionAttributes = session.attributes,
         result = sessionAttributes.text,
-        speechText = "",
         cardContent = "",
         cardImage = "https",
-        repromptText = "Do you want to check the next best price of the product?", 
         i;
-    var cardTitle = "[" + (sessionAttributes.index + 1) + " / " + result.length + "] " + sessionAttributes.productToSearch;
+    var speechText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. To search for a product, say, get the price of, then the product. For example, get the price of samsung s seven phone. Now, what product do you want to check?";
+    var repromptText = "What product do you want to check?";
+
+    // Setup the default speech to be spoken by alexa
+    var speechOutput = {
+        speech: speechText,
+        type: AlexaSkill.speechOutputType.PLAIN_TEXT
+    };
+
+    var repromptOutput = {
+        speech: repromptText,
+        type: AlexaSkill.speechOutputType.PLAIN_TEXT
+    };
+
     if (!result) {
-        speechText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. Now, what product do you want to check?";
-        // cardContent = speechText;
-        response.ask(speechText, speechText);
+        response.ask(speechOutput, repromptOutput);
     } else if (sessionAttributes.index >= result.length) {
-        speechText = "There are no more price information. Try to search for another product by saying, get price of, then the product. For example, get price of XBox One game console.";
-        response.ask(speechText, speechText)
+        speechOutput.speech = "There are no more price information. Try to search for another product by saying, get price of, then the product. For example, get price of XBox One game console. Now, what product do you want to search?";
+        response.ask(speechOutput, repromptOutput);
     } else {
+        var cardTitle = "[" + (sessionAttributes.index + 1) + " / " + result.length + "] " + sessionAttributes.productToSearch;
+        var ranking = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
         for (i = 0; i < 1; i++) 
         {
             if (sessionAttributes.index>= result.length) {
@@ -280,7 +304,7 @@ function handleNextEventRequest(intent, session, response) {
                 price = product.price
                 onSale = "In "
             }
-            speechText = speechText + "<p>" + "The next best price is " + price + " " + product.currency + 
+            speechText = "<p>" + "The " + ranking[sessionAttributes.index] + " best price is " + price + " " + product.currency + 
                             "</p><p>" + onSale + product.store + "</p> " + ", the description is, " + product.name;
             cardContent = cgDataHelper.setupCardContent(result[sessionAttributes.index]);
             cardImage = cgDataHelper.setupProductImage(result[sessionAttributes.index]);
@@ -289,17 +313,12 @@ function handleNextEventRequest(intent, session, response) {
         if (sessionAttributes.index < result.length) {
             speechText = speechText + " <p>Wanna check the next best price of the product?</p>";
         } else {
-            speechText = speechText + "<p> Those were the first " + result.length + " best prices</p>";
+            speechText = speechText + "<p> Those were the first " + result.length + " best prices.</p><p>To search for another product, say, get the price of, then the product. Now, what is the next product that you want to search?</p>";
         }
+        // Setup the speech to say when product information is available
+        speechOutput.speech = "<speak>" + speechText + "</speak>";
+        speechOutput.type = AlexaSkill.speechOutputType.SSML;
 
-        var speechOutput = {
-            speech: "<speak>" + speechText + "</speak>",
-            type: AlexaSkill.speechOutputType.SSML
-        };
-        var repromptOutput = {
-            speech: repromptText,
-            type: AlexaSkill.speechOutputType.PLAIN_TEXT
-        };
         response.askWithCardStandard(speechOutput, 
                 repromptOutput, 
                 cardTitle, 
