@@ -1,13 +1,7 @@
-GetFirstEventIntent get {price of|product}
-GetFirstEventIntent get the {price of|product}
-GetFirstEventIntent check the {price of|product}
-GetFirstEventIntent check {price of|product}
-GetFirstEventIntent give me the {price of|product}
-GetFirstEventIntent get cheapest {price of|product}
-GetFirstEventIntent get the cheapest {price of|product}
-GetFirstEventIntent how much is the {price of|product}
-GetFirstEventIntent what is the {price of|product}
-GetFirstEventIntent what's' the {price of|product}
+GetFirstEventIntent the price of {macbook air laptop|product}
+GetFirstEventIntent the price of {samsung s. seven phone in amazon|product}
+GetFirstEventIntent the price of {strawberry|product}
+GetFirstEventIntent the price of {coffee|product}
 GetNextEventIntent yes
 GetNextEventIntent yup
 GetNextEventIntent sure

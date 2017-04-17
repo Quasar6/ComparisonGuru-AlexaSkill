@@ -1,17 +1,13 @@
 {
   "intents": [
     {
-      "intent": "GetFirstEventIntent",
       "slots": [
         {
           "name": "product",
           "type": "AMAZON.LITERAL"
-        },
-        {
-          "name": "store",
-          "type": "CUSTOM_LIST_STORE"
         }
-      ]
+      ],
+      "intent": "GetFirstEventIntent"
     },
     {
       "intent": "GetNextEventIntent"
@@ -27,4 +23,3 @@
     }
   ]
 }
-
