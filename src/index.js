@@ -60,14 +60,6 @@ var urlPrefix =
 };
 
 /**
- * URL prefix containing store logo images
- */
-var urlLogoPrefix = {
-    "bestbuy": "https://s3.amazonaws.com/comparisonguru-pics/bestbuy.png",
-    "walmart": "https://s3.amazonaws.com/comparisonguru-pics/walmart.png"
-}
-
-/**
  * Variable defining number of events to be read at one time
  */
 var paginationSize = 10;
@@ -121,7 +113,7 @@ ComparisonGuruSkill.prototype.intentHandlers = {
     },
 
     "AMAZON.HelpIntent": function (intent, session, response) {
-        var speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. To search for a product, say, get price of, then the product name. For example, get price of macbook air laptop.";
+        var speechText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. To search for a product, say, get price of, then the product name. For example, get price of macbook air laptop.";
         var repromptText = "Now what product do you want to check?";
         var speechOutput = {
             speech: speechText,
@@ -158,9 +150,9 @@ ComparisonGuruSkill.prototype.intentHandlers = {
 function getWelcomeResponse(response) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var cardTitle = "Welcome to Comparison Guru";
-    var repromptText = "<p>With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.</p> <p>Now, what product do you want to check?</p>";
+    var repromptText = "<p>With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart.</p> <p>Now, what product do you want to check?</p>";
     var speechText = "<p>Welcome to Comparison Guru.</p> <p>What product do you want to check?</p>";
-    var cardOutput = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. To search for a product, please say, \"Get the price of \", followed by the product name.\n\nFor example:\n\"Get the price of macbook air laptop\"";
+    var cardOutput = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. To search for a product, please say, \"Get the price of \", followed by the product name.\n\nFor example:\n\"Get the price of macbook air laptop\"";
     // If the user either does not reply to the welcome message or says something that is not
     // understood, they will be prompted again with this text.
 
@@ -179,14 +171,14 @@ function getWelcomeResponse(response) {
  * Gets a poster prepares the speech to reply to the user.
  */
 function handleFirstEventRequest(intent, session, response) {
-    var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada.";
+    var repromptText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart.";
     
     // Extract the product information
     var cgDataHelper = new CGDataHelper();
     var productInfo = cgDataHelper.getProductToSearch((intent.slots.product).value);
     // Check if there is No valid product to be searched
     if (productInfo.name === "") {
-        speechText = "Please try again. Say, \"get price of \", then the product. For example, \"get price of Samsung S7 phone\".";
+        speechText = "Please try again. Say, \"get the price of \", then the product. For example, \"get the price of Samsung S. Seven phone\".";
         // cardContent = speechText;
         response.ask(speechText, repromptText);
         return;
@@ -248,47 +240,18 @@ function handleFirstEventRequest(intent, session, response) {
             response.askWithCardStandard(speechOutput, 
                         repromptOutput, 
                         cardTitle, 
-                        setupCardContent(events), 
-                        setupProductImage(events),
-                        (sessionAttributes.text).length > 1 ? false : true);
+                        cgDataHelper.setupCardContent(events), 
+                        cgDataHelper.setupProductImage(events),
+                        false);
         }
     });
-}
-
-/**
- * Sets up the content of the Alexa card to be shown
- * @param events 
- */
-function setupCardContent(events) {
-    var price = events.salePrice;
-    if (price == null) {
-        price = events.price
-    }
-    return "Price: " + price + " " + events.currency + "\n\nStore: " + events.store + "\n"+ events.url;
-}
-
-/**
- * Sets up the image of the product as part of the Alexa card to be shown
- */
-function setupProductImage(events) {
-    var cardImage = "https://";
-
-    if (events.imageURL) {
-        if (events.store == "bestbuy" || events.store == "walmart") {
-            cardImage = urlLogoPrefix[events.store]
-        } else {
-            var strResult = (events.imageURL).split("://")
-            cardImage += strResult[1];
-        }
-    }
-
-    return cardImage;
 }
 
 /**
  * Gets a poster prepares the speech to reply to the user.
  */
 function handleNextEventRequest(intent, session, response) {
+    var cgDataHelper = new CGDataHelper();
     var sessionAttributes = session.attributes,
         result = sessionAttributes.text,
         speechText = "",
@@ -298,7 +261,7 @@ function handleNextEventRequest(intent, session, response) {
         i;
     var cardTitle = "[" + (sessionAttributes.index + 1) + " / " + result.length + "] " + sessionAttributes.productToSearch;
     if (!result) {
-        speechText = "With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. Now, what product do you want to check?";
+        speechText = "With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. Now, what product do you want to check?";
         // cardContent = speechText;
         response.ask(speechText, speechText);
     } else if (sessionAttributes.index >= result.length) {
@@ -319,17 +282,14 @@ function handleNextEventRequest(intent, session, response) {
             }
             speechText = speechText + "<p>" + "The next best price is " + price + " " + product.currency + 
                             "</p><p>" + onSale + product.store + "</p> " + ", the description is, " + product.name;
-            // cardContent = cardContent + result[sessionAttributes.index] + " ";
-            cardContent = setupCardContent(result[sessionAttributes.index]);
-            cardImage = setupProductImage(result[sessionAttributes.index]);
+            cardContent = cgDataHelper.setupCardContent(result[sessionAttributes.index]);
+            cardImage = cgDataHelper.setupProductImage(result[sessionAttributes.index]);
             sessionAttributes.index++;
         }
         if (sessionAttributes.index < result.length) {
             speechText = speechText + " <p>Wanna check the next best price of the product?</p>";
-            // cardContent = cardContent + " Wanna check the next best price of the product?";
         } else {
             speechText = speechText + "<p> Those were the first " + result.length + " best prices</p>";
-            // cardContent = cardContent + "<p> Those were the first " + paginationSize + " best prices</p>";
         }
 
         var speechOutput = {
@@ -350,6 +310,7 @@ function handleNextEventRequest(intent, session, response) {
 }
 
 function fetchDataFromQuasar(name, storeName, eventCallback) {
+    var cgDataHelper = new CGDataHelper();
     var url = urlPrefix[storeName] + name + "/undefined_category";
      
     https.get(url, function(res) {
@@ -360,34 +321,12 @@ function fetchDataFromQuasar(name, storeName, eventCallback) {
         });
 
         res.on('end', function () {
-            var result = parseJson(body);
+            var result = cgDataHelper.parseJson(body, paginationSize);
             eventCallback(result);
         });
     }).on('error', function (e) {
         console.log("Got error: ", e);
     });
-}
-
-function parseJson(inputText) {
-    // console.log('parseJson get called');
-    var products = new Array();
-
-    // console.log(inputText);
-    // Parse the input Text to convert string into JS object 
-    try {
-        var textJson = JSON.parse(inputText);
-
-        // Setup the number of entries
-        var maxSize = textJson.length < 10 ? textJson.length : paginationSize;
-
-        // Return the first index of the array since this contain the cheapest price
-        for (var index = 0; index < maxSize; index++) {
-            textJson[index].name = (textJson[index].name).replace("&", "and");
-            products.push(textJson[index]);
-        }
-    } catch (e) {
-    }
-    return products;
 }
 
 // Expose ComparisonGuruSkill so we can test it.
