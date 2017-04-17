@@ -102,7 +102,7 @@ CGDataHelper.prototype.parseJson = function(inputText, paginationSize) {
 
         // Return the first index of the array since this contain the cheapest price
         for (var index = 0; index < maxSize; index++) {
-            textJson[index].name = (textJson[index].name).replace("&", "and");
+            textJson[index].name = (textJson[index].name).replace(/&/g, "and");
             products.push(textJson[index]);
         }
     } catch (e) {
