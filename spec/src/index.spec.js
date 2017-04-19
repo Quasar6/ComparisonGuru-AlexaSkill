@@ -32,8 +32,8 @@ describe('index', function() {
 
         expect(response.ask).toHaveBeenCalled();
         args = response.ask.argsForCall[ 0 ];
-        expect(args[0].speech).toEqual('With Comparison Guru, you can compare product prices across major online shopping stores in US and Canada. To search for a product, say, get price of, then the product name. For example, get price of macbook air laptop.');
-        expect(args[1].speech).toEqual("Now what product do you want to check?");
+        expect(args[0].speech).toEqual('With Comparison Guru, you can compare product prices across major online shopping stores like Amazon, Best Buy, eBay, and Walmart. To search for a product, say, get price of, then the product name. For example, get price of macbook air laptop. Now, what product do you want to check?');
+        expect(args[1].speech).toEqual("What product do you want to check?");
     });
 
     it('AMAZON.StopIntent', function() {
